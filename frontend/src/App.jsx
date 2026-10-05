@@ -523,7 +523,7 @@ export default function App() {
       {/* Sleek Minimalist Footer */}
       <footer className="border-t border-slate-300/60 py-5 text-center text-xs text-slate-500">
         <p className="font-medium">
-          SpyWorld &bull; Universal Real-World Social Deduction Game &bull; Powered by Google Gemini AI
+          CineSpy &bull; Indian Cinema Social Deduction Party Game &bull; Powered by Google Gemini AI
         </p>
       </footer>
 
