@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+backend/target/
+frontend/dist/
+
+# Local Database Files
+**/data/
+*.mv.db
+*.lock.db
+*.trace.db
+
+# IDE & OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

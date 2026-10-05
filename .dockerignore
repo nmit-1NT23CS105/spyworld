@@ -1,0 +1,20 @@
+# Git
+.git
+.gitignore
+
+# Frontend build artifacts & dependencies
+frontend/node_modules
+frontend/dist
+frontend/.env.local
+
+# Backend build artifacts & IDE files
+backend/target
+backend/.idea
+backend/.vscode
+backend/*.iml
+.mvn/wrapper/maven-wrapper.jar
+
+# Logs & temp files
+*.log
+.DS_Store
+Thumbs.db
