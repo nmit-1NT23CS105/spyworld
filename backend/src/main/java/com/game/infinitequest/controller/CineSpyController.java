@@ -66,6 +66,16 @@ public class CineSpyController {
         return ResponseEntity.ok(cineSpyRoomService.castVote(request));
     }
 
+    @PostMapping("/room/{roomCode}/proceed-voting")
+    public ResponseEntity<CineSpyRoom> proceedToVoting(@PathVariable String roomCode) {
+        return ResponseEntity.ok(cineSpyRoomService.proceedToVoting(roomCode));
+    }
+
+    @PostMapping("/room/{roomCode}/proceed-after-vote")
+    public ResponseEntity<CineSpyRoom> proceedFromVoteResult(@PathVariable String roomCode) {
+        return ResponseEntity.ok(cineSpyRoomService.proceedFromVoteResult(roomCode));
+    }
+
     @PostMapping("/room/white-guess")
     public ResponseEntity<CineSpyRoom> submitWhiteGuess(@RequestBody WhiteGuessRequest request) {
         return ResponseEntity.ok(cineSpyRoomService.submitWhiteGuess(request));

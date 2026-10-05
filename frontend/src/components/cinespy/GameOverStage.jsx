@@ -22,29 +22,30 @@ export default function GameOverStage({ room, onPlayAgain, onBackToLobby, onOpen
       case 'UNDERCOVER':
         return {
           title: 'Undercover Victory!',
-          headline: 'The Spies Outsmarted Everyone! 🕵️',
+          headline: 'The Spy Blended In & Won! 🕵️',
           badge: 'bg-rose-100 text-rose-700 border border-rose-200',
           icon: '🕵️',
-          subtext: 'The undercovers blended in unnoticed and survived until the end!'
+          subtext: 'The Undercover blended into the Indian cinema discussion and survived until the end!'
         };
       case 'MR_WHITE':
         return {
           title: 'Mr. White Victory!',
-          headline: 'Mr. White Guessed the Word! 🎩',
+          headline: 'Mr. White Guessed The Movie! 🎩',
           badge: 'bg-amber-100 text-amber-800 border border-amber-200',
           icon: '🎩',
           subtext: room?.whiteGuess
-            ? `Mr. White correctly named the secret word: "${room?.whiteGuess}"!`
-            : 'Mr. White went completely undetected the entire game!'
+            ? `Mr. White correctly deduced the majority movie: "${room?.whiteGuess}"!`
+            : 'Mr. White successfully deceived everyone without even having a movie!'
         };
       case 'CIVILIANS':
+      case 'NORMAL':
       default:
         return {
-          title: 'Civilians Triumph!',
-          headline: 'The Spies Were Caught! 🎉',
+          title: 'Normal Players Win!',
+          headline: 'The Spies Were Caught! 🎬',
           badge: 'bg-blue-100 text-blue-700 border border-blue-200',
           icon: '👑',
-          subtext: 'All undercovers and Mr. White were found and voted out.'
+          subtext: 'The true cinephiles successfully identified and eliminated all spies!'
         };
     }
   };
@@ -94,29 +95,29 @@ export default function GameOverStage({ room, onPlayAgain, onBackToLobby, onOpen
         </div>
       )}
 
-      {/* Secret Real-World Words Revealed */}
+      {/* Section 30: Secret Indian Cinema Movies Revealed */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
         <div className="neu-card p-5 space-y-1 text-center">
           <span className="text-[11px] font-bold text-blue-700 uppercase tracking-wide block">
-            👑 Secret Word
+            🎬 Majority Movie
           </span>
           <h3 className="text-2xl font-black text-slate-900">
-            {room?.civilianWord || 'Target Word'}
+            {room?.civilianWord || 'Majority Movie'}
           </h3>
           <p className="text-[11px] text-slate-400">
-            Held by the Civilians
+            Assigned to Normal Players
           </p>
         </div>
 
         <div className="neu-card p-5 space-y-1 text-center">
           <span className="text-[11px] font-bold text-rose-600 uppercase tracking-wide block">
-            🕵️ Decoy Word
+            🕵️ Undercover Movie
           </span>
           <h3 className="text-2xl font-black text-slate-900">
-            {room?.undercoverWord || 'Decoy Word'}
+            {room?.undercoverWord || 'Decoy Movie'}
           </h3>
           <p className="text-[11px] text-slate-400">
-            Given to the Undercover Spy
+            Assigned to the Undercover Spy
           </p>
         </div>
       </div>
@@ -175,7 +176,7 @@ export default function GameOverStage({ room, onPlayAgain, onBackToLobby, onOpen
                         ⭐ {player.score || 0}
                       </span>
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${roleBadge}`}>
-                        {role === 'MR_WHITE' ? 'Mr. White' : role === 'UNDERCOVER' ? 'Undercover' : 'Civilian'}
+                        {role === 'MR_WHITE' ? 'Mr. White' : role === 'UNDERCOVER' ? 'Undercover' : 'Normal'}
                       </span>
                     </div>
                   </div>

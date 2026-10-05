@@ -12,7 +12,9 @@ import EmojiReactionDock from './components/cinespy/EmojiReactionDock';
 import LobbyStage from './components/cinespy/LobbyStage';
 import RoleRevealStage from './components/cinespy/RoleRevealStage';
 import ClueRoundStage from './components/cinespy/ClueRoundStage';
+import DiscussionStage from './components/cinespy/DiscussionStage';
 import VotingStage from './components/cinespy/VotingStage';
+import VoteResultStage from './components/cinespy/VoteResultStage';
 import MrWhiteGuessStage from './components/cinespy/MrWhiteGuessStage';
 import GameOverStage from './components/cinespy/GameOverStage';
 import { AlertCircle, Loader2 } from 'lucide-react';
@@ -243,6 +245,46 @@ export default function App() {
     }
   };
 
+  // Proceed from Discussion to Voting (Section 18)
+  const handleProceedToVoting = async () => {
+    if (!room?.roomCode) return;
+    setLoading(true);
+    try {
+      const resp = await fetch(`${API_BASE}/room/${room.roomCode}/proceed-voting`, {
+        method: 'POST'
+      });
+      if (resp.ok) {
+        const updated = await resp.json();
+        setRoom(updated);
+        playSfx('spy_vote');
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Proceed after Vote Result (Section 20/21)
+  const handleProceedAfterVote = async () => {
+    if (!room?.roomCode) return;
+    setLoading(true);
+    try {
+      const resp = await fetch(`${API_BASE}/room/${room.roomCode}/proceed-after-vote`, {
+        method: 'POST'
+      });
+      if (resp.ok) {
+        const updated = await resp.json();
+        setRoom(updated);
+        playSfx('click');
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Submit Mr. White Guess
   const handleSubmitWhiteGuess = async (guessWord) => {
     if (!room?.roomCode) return;
@@ -434,11 +476,27 @@ export default function App() {
           />
         )}
 
+        {room?.status === 'DISCUSSION' && (
+          <DiscussionStage
+            room={room}
+            onProceedToVoting={handleProceedToVoting}
+            loading={loading}
+          />
+        )}
+
         {room?.status === 'VOTING' && (
           <VotingStage
             room={room}
             myPlayerId={myPlayerId}
             onCastVote={handleCastVote}
+            loading={loading}
+          />
+        )}
+
+        {room?.status === 'VOTE_RESULT' && (
+          <VoteResultStage
+            room={room}
+            onProceedAfterVote={handleProceedAfterVote}
             loading={loading}
           />
         )}

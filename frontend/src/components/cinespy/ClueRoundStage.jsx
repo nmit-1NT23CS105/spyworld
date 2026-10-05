@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Send, MessageSquare, Mic, MicOff, Sparkles, ChevronDown, ChevronUp, CheckCircle2 } from 'lucide-react';
+import { Send, MessageSquare, Mic, MicOff, Sparkles, ChevronDown, ChevronUp, CheckCircle2, BookOpen, AlertTriangle, Check, X } from 'lucide-react';
 import { playSfx } from '../../audioFx';
 import TurnTimer from './TurnTimer';
 
@@ -12,6 +12,8 @@ export default function ClueRoundStage({
   const [clueText, setClueText] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [cluesBoardOpen, setCluesBoardOpen] = useState(true);
+
+  const [guidelinesOpen, setGuidelinesOpen] = useState(false);
 
   const players = room?.players || [];
   const speakingOrder = room?.speakingOrder || [];
@@ -85,23 +87,23 @@ export default function ClueRoundStage({
       {/* Friendly Header */}
       <div className="text-center space-y-1.5">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold neu-card-sm text-blue-700">
-          <span>🔄 Match #{room?.matchesPlayedInRoom || 1}</span>
+          <span>🎬 CineSpy Indian Cinema</span>
           <span className="text-slate-300">•</span>
-          <span>Deck: {room?.packCategory?.replaceAll('_', ' ') || 'All'} (Non-Repeating)</span>
+          <span>Deck: {room?.movieLanguage || 'PAN_INDIA'} ({room?.movieDifficulty || 'ALL'})</span>
         </div>
         <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-          Round {room?.roundNumber || 1}: Clue Time! 💬
+          Round {room?.roundNumber || 1}: Clue Phase 💬
         </h2>
         <p className="text-xs text-slate-500 max-w-sm mx-auto">
-          Give a subtle 1-to-3 word clue about your word. Listen closely to catch who has the decoy word!
+          Describe your movie indirectly. Normal players must prove knowledge without giving it away; Spies must blend in!
         </p>
       </div>
 
-      {/* Active Speaker Spotlight Neumorphic Card */}
+      {/* Main Speaker Card */}
       <div className="neu-card p-6 sm:p-7 space-y-4">
         {/* Real-time Turn Timer with Heartbeat Audio */}
         <TurnTimer
-          duration={15}
+          duration={room?.clueTimerSeconds || 30}
           speakerName={currentSpeaker?.name || 'Current Player'}
           active={Boolean(currentSpeaker && !loading)}
           onExpire={handleTimerExpire}
@@ -191,6 +193,48 @@ export default function ClueRoundStage({
           <div className="mt-4 pt-4 border-t border-slate-200/80 flex items-center gap-2.5 text-xs text-slate-500 font-medium">
             <span className="w-2.5 h-2.5 rounded-full bg-blue-600 animate-ping shrink-0" />
             <span>Waiting for {currentSpeaker?.name} to give a clue...</span>
+          </div>
+        )}
+      </div>
+
+      {/* Section 13 & 14: Collapsible Clue Guidelines & Restrictions */}
+      <div className="neu-card p-4 space-y-2.5">
+        <button
+          type="button"
+          onClick={() => { setGuidelinesOpen(!guidelinesOpen); playSfx('click'); }}
+          className="w-full flex items-center justify-between text-xs text-slate-700 hover:text-slate-900 select-none"
+        >
+          <div className="flex items-center gap-2 font-bold">
+            <BookOpen size={15} className="text-blue-600" />
+            <span>Clue Rules: What makes a good clue?</span>
+          </div>
+          <div className="flex items-center gap-1 text-[11px] text-blue-600 font-bold">
+            <span>{guidelinesOpen ? 'Hide' : 'View Guidelines'}</span>
+            {guidelinesOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          </div>
+        </button>
+
+        {guidelinesOpen && (
+          <div className="pt-2 border-t border-slate-200/80 space-y-2.5 text-xs animate-in fade-in duration-200">
+            <div className="p-3 rounded-2xl bg-emerald-50/80 border border-emerald-200 space-y-1">
+              <span className="font-extrabold text-emerald-900 flex items-center gap-1.5 text-[11px] uppercase tracking-wide">
+                <Check size={13} className="text-emerald-600" /> Good Clues (Indirect & Conceptual)
+              </span>
+              <p className="text-emerald-800 text-[11px]">
+                • "Power and succession are major parts of the story."<br />
+                • "The protagonist's identity is not what it first appears to be."<br />
+                • "A single night mission with high adrenaline."
+              </p>
+            </div>
+
+            <div className="p-3 rounded-2xl bg-rose-50/80 border border-rose-200 space-y-1">
+              <span className="font-extrabold text-rose-900 flex items-center gap-1.5 text-[11px] uppercase tracking-wide">
+                <X size={13} className="text-rose-600" /> Forbidden Clues (Instant Spoilers)
+              </span>
+              <p className="text-rose-800 text-[11px]">
+                Do NOT mention actor/actress names, director, character names, release year, first letter of title, word counts, or iconic dialogues!
+              </p>
+            </div>
           </div>
         )}
       </div>

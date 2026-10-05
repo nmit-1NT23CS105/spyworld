@@ -22,8 +22,12 @@ export default function VotingStage({
     ? (unvotedHumans[0] || alivePlayers[0]) 
     : alivePlayers.find(p => p.id === myPlayerId);
 
+  const isRevote = Boolean(room?.isRevote && room?.tiedCandidateIds?.length > 0);
+  const tiedIds = room?.tiedCandidateIds || [];
+
   const handleSelectSuspect = (suspectId) => {
-    if (activeVoter && suspectId === activeVoter.id) return; // Cannot vote for yourself
+    if (activeVoter && suspectId === activeVoter.id) return; // Cannot vote for yourself (Section 18)
+    if (isRevote && !tiedIds.includes(suspectId)) return; // Revote restricted to tied candidates (Section 26)
     playSfx('click');
     setSelectedSuspectId(suspectId);
   };
@@ -37,7 +41,12 @@ export default function VotingStage({
 
   const handleTimerExpire = () => {
     if (!activeVoter || loading) return;
-    const targetSuspect = selectedSuspectId || alivePlayers.find(p => p.id !== activeVoter.id)?.id;
+    const candidates = alivePlayers.filter(p => {
+      if (p.id === activeVoter.id) return false;
+      if (isRevote && !tiedIds.includes(p.id)) return false;
+      return true;
+    });
+    const targetSuspect = selectedSuspectId || (candidates[0]?.id);
     if (targetSuspect) {
       playSfx('spy_vote');
       onCastVote(activeVoter.id, targetSuspect);
@@ -58,10 +67,12 @@ export default function VotingStage({
       {/* Friendly Header */}
       <div className="text-center space-y-1">
         <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-          Time to Vote! 🗳️
+          {isRevote ? 'Tie-Break Revote! ⚖️' : 'Time to Vote! 🗳️'}
         </h2>
         <p className="text-xs text-slate-500 max-w-sm mx-auto">
-          Talk it over with your group! Whose clue sounded off or contradictory? Tap a suspect to vote them out.
+          {isRevote
+            ? 'The previous vote resulted in a tie! Cast your revote exclusively between the tied candidates.'
+            : 'Talk it over with your group! Whose clue sounded off or contradictory? Tap a suspect to vote them out.'}
         </p>
       </div>
 
@@ -69,12 +80,27 @@ export default function VotingStage({
       <div className="neu-card p-4 sm:p-7 space-y-4 sm:space-y-5">
         {/* Deliberation Countdown Timer with Heartbeat Audio */}
         <TurnTimer
-          duration={30}
-          speakerName="Group Discussion"
+          duration={room?.votingTimerSeconds || 30}
+          speakerName={isRevote ? 'Revote Deliberation' : 'Voting Deliberation'}
           active={!loading}
           allowExtend={true}
           onExpire={handleTimerExpire}
         />
+
+        {/* Tie-Break Revote Alert Banner (Section 26) */}
+        {isRevote && (
+          <div className="p-3.5 rounded-2xl bg-amber-50/90 border-2 border-amber-300 text-amber-950 flex items-center gap-3 animate-in shake">
+            <ShieldAlert size={22} className="text-amber-600 shrink-0" />
+            <div className="text-xs text-left">
+              <span className="font-black uppercase tracking-wider block">
+                ⚡ Tie-Break Revote Active
+              </span>
+              <span className="font-medium text-amber-800">
+                You must vote strictly for one of the tied suspects highlighted below.
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Active Voter Banner */}
         <div className="flex items-center justify-between p-3.5 rounded-2xl bg-white/60 border border-slate-200/80">
@@ -105,26 +131,28 @@ export default function VotingStage({
         {/* Suspects List: Neumorphic buttons that press down on select */}
         <div className="space-y-2">
           <label className="block text-xs font-bold text-slate-700">
-            Who do you suspect?
+            {isRevote ? 'Select from tied suspects:' : 'Who do you suspect?'}
           </label>
 
           <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
             {alivePlayers.map((player) => {
               const isSelected = selectedSuspectId === player.id;
               const isSelf = player.id === activeVoter?.id;
+              const isEligibleInRevote = !isRevote || tiedIds.includes(player.id);
+              const isSelectable = !isSelf && isEligibleInRevote;
               const receivedVotes = voteCounts[player.id] || 0;
 
               return (
                 <div
                   key={player.id}
-                  onClick={() => !isSelf && handleSelectSuspect(player.id)}
-                  className={`p-3.5 rounded-2xl transition-all flex items-center justify-between cursor-pointer ${
-                    isSelf
-                      ? 'opacity-40 cursor-not-allowed bg-slate-200/40 border border-slate-200'
+                  onClick={() => isSelectable && handleSelectSuspect(player.id)}
+                  className={`p-3.5 rounded-2xl transition-all flex items-center justify-between ${
+                    !isSelectable
+                      ? 'opacity-35 cursor-not-allowed bg-slate-200/30 border border-slate-200/50'
                       : isSelected
-                      ? 'neu-inset text-blue-900'
-                      : 'neu-btn hover:text-slate-900'
-                  }`}
+                      ? 'neu-inset text-blue-900 cursor-pointer'
+                      : 'neu-btn hover:text-slate-900 cursor-pointer'
+                  } ${isRevote && isEligibleInRevote ? 'border-2 border-amber-300' : ''}`}
                 >
                   <div className="flex items-center gap-3 truncate">
                     <span className="text-xl p-1.5 rounded-xl bg-white/60 shrink-0">
