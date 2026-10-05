@@ -12,7 +12,11 @@ export default function RoleRevealStage({ room, onProceedToClues, loading }) {
   const [allDone, setAllDone] = useState(false);
 
   // In Solo AI mode, player 0 is the human host
-  const targetPlayer = isSolo ? players[0] : players[currentPlayerIdx];
+  const targetPlayer = (isSolo ? players[0] : players[currentPlayerIdx]) || {
+    name: 'Player 1',
+    role: 'NORMAL',
+    secretWord: room?.civilianWord || 'POKIRI'
+  };
 
   const handleToggleReveal = () => {
     setIsRevealed(!isRevealed);
@@ -37,9 +41,9 @@ export default function RoleRevealStage({ room, onProceedToClues, loading }) {
     }
   };
 
-  const role = targetPlayer?.role || 'NORMAL';
-  const isMrWhite = 'MR_WHITE'.equalsIgnoreCase(role);
-  const isUndercover = 'UNDERCOVER'.equalsIgnoreCase(role);
+  const role = (targetPlayer?.role || 'NORMAL').toUpperCase();
+  const isMrWhite = role === 'MR_WHITE';
+  const isUndercover = role === 'UNDERCOVER';
   const isNormal = !isMrWhite && !isUndercover;
 
   // Section 11: Everyone Ready Transition Screen
@@ -96,7 +100,7 @@ export default function RoleRevealStage({ room, onProceedToClues, loading }) {
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold neu-card-sm text-blue-700">
           <span>🔄 Match #{room?.matchesPlayedInRoom || 1}</span>
           <span className="text-slate-300">•</span>
-          <span>Deck: {room?.packCategory?.replaceAll('_', ' ') || 'Indian Cinema'}</span>
+          <span>Deck: {(room?.movieLanguage || room?.packCategory || 'Indian Cinema').toString().replace(/_/g, ' ')}</span>
         </div>
         <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
           {isSolo ? (
